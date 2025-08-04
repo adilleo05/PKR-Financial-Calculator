@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PKR Financial Calculator | SIP | Step-Up SIP | SWAP</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #27ae60;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--secondary-color);
+            font-weight: 300;
+        }
+        
+        .calculator-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .calculator-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            background: white;
+            border: none;
+            font-weight: 600;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .calculator-form {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calculator-results {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        input[type="number"],
+        input[type="range"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+        }
+        
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .range-container input[type="range"] {
+            flex: 1;
+        }
+        
+        .range-value {
+            min-width: 50px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+        
+        .highlight {
+            color: var(--accent-color);
+        }
+        
+        .summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .summary-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--success-color);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .currency {
+            position: relative;
+        }
+        
+        .currency:before {
+            content: "PKR ";
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            color: #777;
+        }
+        
+        .currency input {
+            padding-left: 50px !important;
+        }
+        
+        @media (max-width: 768px) {
+            .calculator-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>PKR Financial Calculator</h1>
+            <p class="subtitle">Plan your investments with SIP, Step-Up SIP, and SWAP options</p>
+        </header>
+        
+        <div class="calculator-tabs">
+            <button class="tab active" onclick="openTab('sip')">SIP Calculator</button>
+            <button class="tab" onclick="openTab('stepup')">Step-Up SIP</button>
+            <button class="tab" onclick="openTab('swap')">SWAP Calculator</button>
+        </div>
+        
+        <div class="calculator-container">
+            <!-- SIP Calculator -->
+            <div id="sip" class="calculator-form">
+                <div class="form-group">
+                    <label for="sip-monthly-amount">Monthly Investment Amount (PKR)</label>
+                    <div class="currency">
+                        <input type="number" id="sip-monthly-amount" min="1000" step="500" value="10000">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sip-duration">Investment Duration (Years)</label>
+                    <div class="range-container">
+                        <input type="range" id="sip-duration" min="1" max="30" value="10">
+                        <span class="range-value" id="sip-duration-value">10</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sip-return-rate">Expected Annual Return Rate (%)</label>
+                    <div class="range-container">
+                        <input type="range" id="sip-return-rate" min="1" max="30" value="12" step="0.5">
+                        <span class="range-value" id="sip-return-rate-value">12</span>
+                    </div>
+                </div>
+                
+                <button onclick="calculateSIP()">Calculate</button>
+            </div>
+            
+            <div id="sip-results" class="calculator-results">
+                <h3>SIP Investment Results</h3>
+                <div class="result-item">
+                    <div class="result-label">Total Investment</div>
+                    <div class="result-value" id="sip-total-investment">PKR 0</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Estimated Returns</div>
+                    <div class="result-value" id="sip-estimated-returns">PKR 0</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Total Value</div>
+                    <div class="result-value highlight" id="sip-total-value">PKR 0</div>
+                </div>
+                
+                <div class="summary">
+                    <div class="summary-title">Summary</div>
+                    <p>By investing <span id="summary-sip-amount">PKR 0</span> monthly for <span id="summary-sip-years">0</span> years at <span id="summary-sip-rate">0%</span> annual return, you could accumulate approximately <span id="summary-sip-total">PKR 0</span>.</p>
+                </div>
+            </div>
+            
+            <!-- Step-Up SIP Calculator -->
+            <div id="stepup" class="calculator-form hidden">
+                <div class="form-group">
+                    <label for="stepup-initial-amount">Initial Monthly Investment (PKR)</label>
+                    <div class="currency">
+                        <input type="number" id="stepup-initial-amount" min="1000" step="500" value="10000">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stepup-increase">Annual Increase (%)</label>
+                    <div class="range-container">
+                        <input type="range" id="stepup-increase" min="0" max="50" value="10" step="1">
+                        <span class="range-value" id="stepup-increase-value">10</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stepup-duration">Investment Duration (Years)</label>
+                    <div class="range-container">
+                        <input type="range" id="stepup-duration" min="1" max="30" value="10">
+                        <span class="range-value" id="stepup-duration-value">10</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="stepup-return-rate">Expected Annual Return Rate (%)</label>
+                    <div class="range-container">
+                        <input type="range" id="stepup-return-rate" min="1" max="30" value="12" step="0.5">
+                        <span class="range-value" id="stepup-return-rate-value">12</span>
+                    </div>
+                </div>
+                
+                <button onclick="calculateStepUpSIP()">Calculate</button>
+            </div>
+            
+            <div id="stepup-results" class="calculator-results hidden">
+                <h3>Step-Up SIP Results</h3>
+                <div class="result-item">
+                    <div class="result-label">Total Investment</div>
+                    <div class="result-value" id="stepup-total-investment">PKR 0</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Estimated Returns</div>
+                    <div class="result-value" id="stepup-estimated-returns">PKR 0</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Total Value</div>
+                    <div class="result-value highlight" id="stepup-total-value">PKR 0</div>
+                </div>
+                
+                <div class="summary">
+                    <div class="summary-title">Summary</div>
+                    <p>Starting with <span id="summary-stepup-initial">PKR 0</span> and increasing by <span id="summary-stepup-increase">0%</span> annually for <span id="summary-stepup-years">0</span> years at <span id="summary-stepup-rate">0%</span> return, you could accumulate approximately <span id="summary-stepup-total">PKR 0</span>.</p>
+                </div>
+            </div>
+            
+            <!-- SWAP Calculator -->
+            <div id="swap" class="calculator-form hidden">
+                <div class="form-group">
+                    <label for="swap-corpus">Current Corpus Amount (PKR)</label>
+                    <div class="currency">
+                        <input type="number" id="swap-corpus" min="100000" step="10000" value="1000000">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="swap-monthly-amount">Monthly Withdrawal Amount (PKR)</label>
+                    <div class="currency">
+                        <input type="number" id="swap-monthly-amount" min="1000" step="1000" value="10000">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="swap-duration">Withdrawal Duration (Years)</label>
+                    <div class="range-container">
+                        <input type="range" id="swap-duration" min="1" max="30" value="10">
+                        <span class="range-value" id="swap-duration-value">10</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="swap-return-rate">Expected Annual Return Rate (%)</label>
+                    <div class="range-container">
+                        <input type="range" id="swap-return-rate" min="1" max="30" value="8" step="0.5">
+                        <span class="range-value" id="swap-return-rate-value">8</span>
+                    </div>
+                </div>
+                
+                <button onclick="calculateSWAP()">Calculate</button>
+            </div>
+            
+            <div id="swap-results" class="calculator-results hidden">
+                <h3>SWAP Withdrawal Results</h3>
+                <div class="result-item">
+                    <div class="result-label">Total Withdrawn</div>
+                    <div class="result-value" id="swap-total-withdrawn">PKR 0</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Corpus Balance</div>
+                    <div class="result-value" id="swap-corpus-balance">PKR 0</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Total Value</div>
+                    <div class="result-value highlight" id="swap-total-value">PKR 0</div>
+                </div>
+                
+                <div class="summary">
+                    <div class="summary-title">Summary</div>
+                    <p>With a corpus of <span id="summary-swap-corpus">PKR 0</span>, withdrawing <span id="summary-swap-amount">PKR 0</span> monthly for <span id="summary-swap-years">0</span> years at <span id="summary-swap-rate">0%</span> return would leave you with approximately <span id="summary-swap-total">PKR 0</span>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update range value displays
+        document.getElementById('sip-duration').addEventListener('input', function() {
+            document.getElementById('sip-duration-value').textContent = this.value;
+        });
+        
+        document.getElementById('sip-return-rate').addEventListener('input', function() {
+            document.getElementById('sip-return-rate-value').textContent = this.value;
+        });
+        
+        document.getElementById('stepup-increase').addEventListener('input', function() {
+            document.getElementById('stepup-increase-value').textContent = this.value;
+        });
+        
+        document.getElementById('stepup-duration').addEventListener('input', function() {
+            document.getElementById('stepup-duration-value').textContent = this.value;
+        });
+        
+        document.getElementById('stepup-return-rate').addEventListener('input', function() {
+            document.getElementById('stepup-return-rate-value').textContent = this.value;
+        });
+        
+        document.getElementById('swap-duration').addEventListener('input', function() {
+            document.getElementById('swap-duration-value').textContent = this.value;
+        });
+        
+        document.getElementById('swap-return-rate').addEventListener('input', function() {
+            document.getElementById('swap-return-rate-value').textContent = this.value;
+        });
+        
+        // Tab switching
+        function openTab(tabName) {
+            // Hide all tabs and results
+            const tabs = document.querySelectorAll('.calculator-form, .calculator-results');
+            tabs.forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab and results
+            document.getElementById(tabName).classList.remove('hidden');
+            document.getElementById(tabName + '-results').classList.remove('hidden');
+            
+            // Add active class to clicked button
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Format currency
+        function formatCurrency(amount) {
+            return 'PKR ' + amount.toLocaleString('en-PK', { maximumFractionDigits: 0 });
+        }
+        
+        // SIP Calculation
+        function calculateSIP() {
+            const monthlyInvestment = parseFloat(document.getElementById('sip-monthly-amount').value);
+            const years = parseInt(document.getElementById('sip-duration').value);
+            const annualRate = parseFloat(document.getElementById('sip-return-rate').value) / 100;
+            
+            const months = years * 12;
+            const monthlyRate = annualRate / 12;
+            
+            let futureValue = 0;
+            for (let i = 0; i < months; i++) {
+                futureValue = (futureValue + monthlyInvestment) * (1 + monthlyRate);
+            }
+            
+            const totalInvestment = monthlyInvestment * months;
+            const estimatedReturns = futureValue - totalInvestment;
+            
+            document.getElementById('sip-total-investment').textContent = formatCurrency(totalInvestment);
+            document.getElementById('sip-estimated-returns').textContent = formatCurrency(estimatedReturns);
+            document.getElementById('sip-total-value').textContent = formatCurrency(futureValue);
+            
+            // Update summary
+            document.getElementById('summary-sip-amount').textContent = formatCurrency(monthlyInvestment);
+            document.getElementById('summary-sip-years').textContent = years;
+            document.getElementById('summary-sip-rate').textContent = (annualRate * 100).toFixed(1) + '%';
+            document.getElementById('summary-sip-total').textContent = formatCurrency(futureValue);
+        }
+        
+        // Step-Up SIP Calculation
+        function calculateStepUpSIP() {
+            const initialInvestment = parseFloat(document.getElementById('stepup-initial-amount').value);
+            const annualIncrease = parseFloat(document.getElementById('stepup-increase').value) / 100;
+            const years = parseInt(document.getElementById('stepup-duration').value);
+            const annualRate = parseFloat(document.getElementById('stepup-return-rate').value) / 100;
+            
+            const monthlyRate = annualRate / 12;
+            let futureValue = 0;
+            let totalInvestment = 0;
+            
+            for (let year = 0; year < years; year++) {
+                const currentYearInvestment = initialInvestment * Math.pow(1 + annualIncrease, year);
+                for (let month = 0; month < 12; month++) {
+                    futureValue = (futureValue + currentYearInvestment / 12) * (1 + monthlyRate);
+                    totalInvestment += currentYearInvestment / 12;
+                }
+            }
+            
+            const estimatedReturns = futureValue - totalInvestment;
+            
+            document.getElementById('stepup-total-investment').textContent = formatCurrency(totalInvestment);
+            document.getElementById('stepup-estimated-returns').textContent = formatCurrency(estimatedReturns);
+            document.getElementById('stepup-total-value').textContent = formatCurrency(futureValue);
+            
+            // Update summary
+            document.getElementById('summary-stepup-initial').textContent = formatCurrency(initialInvestment);
+            document.getElementById('summary-stepup-increase').textContent = (annualIncrease * 100).toFixed(0) + '%';
+            document.getElementById('summary-stepup-years').textContent = years;
+            document.getElementById('summary-stepup-rate').textContent = (annualRate * 100).toFixed(1) + '%';
+            document.getElementById('summary-stepup-total').textContent = formatCurrency(futureValue);
+        }
+        
+        // SWAP Calculation
+        function calculateSWAP() {
+            const corpus = parseFloat(document.getElementById('swap-corpus').value);
+            const monthlyWithdrawal = parseFloat(document.getElementById('swap-monthly-amount').value);
+            const years = parseInt(document.getElementById('swap-duration').value);
+            const annualRate = parseFloat(document.getElementById('swap-return-rate').value) / 100;
+            
+            const months = years * 12;
+            const monthlyRate = annualRate / 12;
+            let remainingCorpus = corpus;
+            
+            for (let i = 0; i < months; i++) {
+                remainingCorpus = remainingCorpus * (1 + monthlyRate) - monthlyWithdrawal;
+                if (remainingCorpus < 0) {
+                    remainingCorpus = 0;
+                    break;
+                }
+            }
+            
+            const totalWithdrawn = Math.min(monthlyWithdrawal * months, corpus + (corpus * annualRate * years));
+            
+            document.getElementById('swap-total-withdrawn').textContent = formatCurrency(totalWithdrawn);
+            document.getElementById('swap-corpus-balance').textContent = formatCurrency(remainingCorpus);
+            document.getElementById('swap-total-value').textContent = formatCurrency(totalWithdrawn + remainingCorpus);
+            
+            // Update summary
+            document.getElementById('summary-swap-corpus').textContent = formatCurrency(corpus);
+            document.getElementById('summary-swap-amount').textContent = formatCurrency(monthlyWithdrawal);
+            document.getElementById('summary-swap-years').textContent = years;
+            document.getElementById('summary-swap-rate').textContent = (annualRate * 100).toFixed(1) + '%';
+            document.getElementById('summary-swap-total').textContent = formatCurrency(totalWithdrawn + remainingCorpus);
+        }
+        
+        // Initialize with SIP calculation
+        window.onload = function() {
+            calculateSIP();
+        };
+    </script>
+</body>
+</html>
